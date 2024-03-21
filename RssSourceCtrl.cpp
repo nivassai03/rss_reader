@@ -116,47 +116,62 @@ std::string RssSourceCtrl::getDefaultSourceFilePath()
 
 void RssSourceCtrl::installSources(const std::vector<std::pair<std::string, std::string>> &sources)
 {
+    // wxMessageOutputDebug dbg;
+    // dbg.Printf("Installing Following sources...\n");
+    // for (const auto &source : sources)
+    // {
+    //     dbg.Printf("Category:%s , Source:%s\n", source.first, source.second);
+    // }
     std::ifstream sourceFile(m_sourceFilePath);
     nlohmann::json j;
     sourceFile >> j;
+    sourceFile.close();
     for (const auto &source_pair : sources)
     {
-
-        auto &list = j["Available"][source_pair.second];
-        for (auto it = list.begin(); it != list.end(); ++it)
+        auto &availableList = j["Available"][source_pair.second];
+        auto &installedList = j["Installed"][source_pair.second];
+        for (auto it = availableList.begin(); it != availableList.end(); ++it)
         {
             if ((*it)["source"] == source_pair.first)
             {
-                j["Installed"][source_pair.second].push_back(*it);
+                installedList.push_back(*it);
+                availableList.erase(it);
+                break;
             }
-            list.erase(it);
-            break;
         }
     }
-    sourceFile.close();
     saveSourceFile(j);
 }
 
 void RssSourceCtrl::uninstallSources(const std::vector<std::pair<std::string, std::string>> &sources)
 {
+
+    // wxMessageOutputDebug dbg;
+    // dbg.Printf("Uninstalling Following sources...\n");
+    // for (const auto &source : sources)
+    // {
+    //     dbg.Printf("Category:%s , Source:%s\n", source.first, source.second);
+    // }
     std::ifstream sourceFile(m_sourceFilePath);
     nlohmann::json j;
     sourceFile >> j;
+    sourceFile.close();
     for (const auto &source_pair : sources)
     {
 
-        auto &list = j["Installed"][source_pair.second];
-        for (auto it = list.begin(); it != list.end(); ++it)
+        auto &installedList = j["Installed"][source_pair.second];
+        auto &avialbleList = j["Available"][source_pair.second];
+        for (auto it = installedList.begin(); it != installedList.end(); ++it)
         {
             if ((*it)["source"] == source_pair.first)
             {
-                j["Available"][source_pair.second].push_back(*it);
+                // dbg.Printf("Uninstalling source:%s....\n", source_pair.first);
+                avialbleList.push_back(*it);
+                installedList.erase(it);
+                break;
             }
-            list.erase(it);
-            break;
         }
     }
-    sourceFile.close();
     saveSourceFile(j);
 }
 

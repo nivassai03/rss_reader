@@ -219,7 +219,6 @@ void SourceInstallDialog::OnInstall(wxCommandEvent &evt)
 
 void SourceInstallDialog::OnUninstall(wxCommandEvent &evt)
 {
-    wxMessageOutputDebug dbg;
     std::vector<std::pair<std::string, std::string>> sources;
     for (wxTreeListItem item = m_installedList->GetFirstItem(); item.IsOk(); item = m_installedList->GetNextItem(item))
     {
@@ -229,8 +228,6 @@ void SourceInstallDialog::OnUninstall(wxCommandEvent &evt)
         {
             wxString source = m_installedList->GetItemText(item);
             wxString category = m_installedList->GetItemText(m_installedList->GetItemParent(item));
-            dbg.Printf("Uninstall : Source:%s Cat:%s", source, category);
-            // m_sourceCtrl.uninstallSource(source.ToStdString(),category.ToStdString());
             sources.push_back({source.ToStdString(), category.ToStdString()});
         }
     }
