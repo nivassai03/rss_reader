@@ -1,0 +1,5 @@
+/out/
+build/*
+!/build/assets/
+.vs/
+.vscode/

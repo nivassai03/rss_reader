@@ -1,0 +1,35 @@
+{
+  "Available": {
+    "News_India": [
+      {
+        "source": "Live Mint",
+        "url": "https://www.livemint.com/rss/news"
+      },
+      {
+        "source": "First Post",
+        "url": "https://www.firstpost.com/commonfeeds/v1/mfp/rss/india.xml"
+      }
+    ],
+    "News_World": [
+      {
+        "source":"New York Times",
+        "url": "https://rss.nytimes.com/services/xml/rss/nyt/World.xml"
+      },
+      {
+        "source":"The Hindu",
+        "url":"https://www.thehindu.com/news/international/feeder/default.rss"
+      }
+    ],
+    "Defense": []
+  },
+  "Installed": {
+    "News_India": [
+      {
+        "source": "The Hindu",
+        "url": "https://www.thehindu.com/news/national/feeder/default.rss"
+      }
+    ],
+    "News_World": [],
+    "Defense": []
+  }
+}
