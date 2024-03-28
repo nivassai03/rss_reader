@@ -62,7 +62,11 @@ void SourceTree::OnTreeSelChanging(wxTreeEvent &evt)
 }
 void SourceTree::OnSourceSelected(wxTreeEvent &evt)
 {
-    evt.Skip();
+    wxTreeItemId id = evt.GetItem();
+    if (!IsRoot(id))
+    {
+        evt.Skip();
+    }
 }
 
 void SourceTree::UnselectOnClickInEmptyArea(wxMouseEvent &evt)
