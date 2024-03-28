@@ -36,9 +36,6 @@ private:
 	wxStaticText *m_titleText;
 	wxStaticText *m_descriptionText;
 	MousePositionContent mousePos;
-	void OnClick(wxMouseEvent &);
-	void OnMouseEnter(wxMouseEvent &);
-	void OnMouseLeave(wxMouseEvent &);
 
 public:
 	ContentPanel(wxWindow *parent, wxWindowID id, wxString title, wxString description);
@@ -58,6 +55,7 @@ private:
 	wxString description;
 	wxString guid;
 	wxBitmap thumbnail;
+	wxBitmap defaultThumbnail;
 	ContentPanel *m_contentPanel;
 	MousePositionFeedItem mousePos;
 	Article m_article;
@@ -65,7 +63,6 @@ private:
 public:
 	FeedItem(wxWindow *parent, const Article &article);
 	void OnClick(wxMouseEvent &);
-	void OnResize(wxSizeEvent &);
 	void OnMouseEnter(wxMouseEvent &);
 	void OnMouseLeave(wxMouseEvent &);
 };

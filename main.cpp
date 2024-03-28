@@ -22,15 +22,12 @@ bool MyApp::OnInit()
 	wxInitAllImageHandlers();
 	InitApplicationData();
 	MainFrame *frame = new MainFrame("rss_reader", wxDefaultPosition, wxSize(800, 600));
-	wxFileName rootDir = wxFileName::DirName(wxStandardPaths::Get().GetUserDataDir()).GetFullPath();
-	wxString splash_path = rootDir.GetFullPath() + "splash.jpg";
-	wxBitmap bitmap(splash_path, wxBITMAP_TYPE_PNG);
 	wxSplashScreen *splash = new wxSplashScreen(m_splashImg,
-												wxSPLASH_NO_TIMEOUT,
+												wxSPLASH_CENTRE_ON_SCREEN | wxSPLASH_NO_TIMEOUT,
 												0, NULL, wxID_ANY, wxDefaultPosition, wxDefaultSize,
 												wxBORDER_SIMPLE | wxSTAY_ON_TOP);
 	wxYield();
-	frame->InitAllArticles();
+	frame->InitArticles();
 	splash->Close();
 	splash->Destroy();
 	frame->Show();

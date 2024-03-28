@@ -5,6 +5,7 @@
 #include <wx/filename.h>
 #include <wx/stdpaths.h>
 #include <wx/image.h>
+#include "Utils.h"
 
 RssParser::RssParser() : m_source(""), m_imageDirPath("") {}
 
@@ -26,9 +27,9 @@ std::string RssParser::InitImageDir(const std::string &imgDirName)
 	return currentSourceImageDir.GetFullPath().ToStdString();
 }
 
-void RssParser::FetchArticleImage(Article &article)
+void RssParser::FetchArticleImage(const Article &article)
 {
-	auto [imageName, imagePath] = article.GetImageNameAndPath();
+	const auto &[imageName, imagePath] = article.GetImageNameAndPath();
 	if (!wxFileExists(imagePath))
 	{
 		std::ofstream of(imagePath, std::ios::binary);
@@ -40,14 +41,9 @@ void RssParser::FetchArticleImage(Article &article)
 		img.Rescale(150, 100, wxIMAGE_QUALITY_BOX_AVERAGE);
 		img.SaveFile(imagePath);
 	}
-	else
-	{
-		wxRemoveFile(imagePath);
-		article.SetImageToDefaultImage();
-	}
 }
 
-std::vector<Article> RssParser::FetchArticles(const std::string &feedUrl)
+std::vector<Article> RssParser::FetchArticlesData(const std::string &feedUrl)
 {
 
 	cpr::Response response = cpr::Get(cpr::Url{feedUrl});
@@ -68,7 +64,6 @@ std::vector<Article> RssParser::FetchArticles(const std::string &feedUrl)
 			Article article(title, description, link, imageUrl);
 			article.SetGUID(guid);
 			article.SetImageNameAndPath(m_imageDirPath);
-			FetchArticleImage(article);
 			articles.push_back(article);
 		}
 	}
@@ -80,31 +75,62 @@ void RssParser::SetSourceAndImgDIr(const std::string &source, const std::string 
 	m_imageDirPath = InitImageDir(imgDir);
 }
 
-void RssParser::FetchArticlesFromSource(const RssSource &source)
-{
-	m_source = source.getName();
-	m_imageDirPath = InitImageDir(source.getImgDir());
-	FetchArticles(source.getUrl());
-}
+void RssParser::DownloadAllArticleImages(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<Article>>> &articles)
 
-void RssParser::FetchAllArticlesFromSources(const std::unordered_map<std::string, std::vector<RssSource>> &sources)
 {
 	std::vector<std::thread> threads;
+	for (const auto &[category, sourceArticles] : articles)
+	{
+		for (const auto &[source, articleList] : sourceArticles)
+		{
+			size_t numThreads = std::thread::hardware_concurrency();
+			size_t articlesPerThread = articleList.size() / numThreads;
+			size_t remainingArticles = articleList.size() % numThreads;
+
+			size_t startIndex = 0;
+			auto it = articleList.begin();
+			for (size_t i = 0; i < numThreads; ++i)
+			{
+				size_t numArticles = articlesPerThread + (i < remainingArticles ? 1 : 0);
+				auto start = it;
+				auto end = std::next(it, numArticles);
+				threads.emplace_back([=, this]()
+									 { for (auto article = start; article != end;++article){
+								FetchArticleImage(*article);
+											 } });
+				it = end;
+			}
+		}
+	}
+	for (auto &thread : threads)
+	{
+		thread.join();
+	}
+}
+
+std::unordered_map<std::string, std::unordered_map<std::string, std::vector<Article>>> RssParser::FetchArticles(const std::vector<RssSource> &sources)
+{
+	std::unordered_map<std::string, std::unordered_map<std::string, std::vector<Article>>> articles;
+	for (const auto source : sources)
+	{
+		SetSourceAndImgDIr(source.getName(), source.getImgDir());
+		articles[source.getCategory()][source.getName()] = FetchArticlesData(source.getUrl());
+	}
+	DownloadAllArticleImages(articles);
+	return articles;
+}
+
+std::unordered_map<std::string, std::unordered_map<std::string, std::vector<Article>>> RssParser::FetchArticles(const std::unordered_map<std::string, std::vector<RssSource>> &sources)
+{
+	std::unordered_map<std::string, std::unordered_map<std::string, std::vector<Article>>> articles;
 	for (const auto &it : sources)
 	{
 		for (const auto &source : it.second)
 		{
-			threads.push_back(std::thread([=, this]
-										  {
-				// RssParser parser;
-				// parser.SetSourceAndImgDIr(source.getName(),source.getImgDir());
-				// std::vector<Article> articles = parser.FetchArticles(source.getUrl());
-				FetchArticlesFromSource(source); }));
+			SetSourceAndImgDIr(source.getName(), source.getImgDir());
+			articles[source.getCategory()][source.getName()] = FetchArticlesData(source.getUrl());
 		}
-		for (auto &thread : threads)
-		{
-			thread.join();
-		}
-		threads.clear();
 	}
+	DownloadAllArticleImages(articles);
+	return articles;
 }

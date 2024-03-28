@@ -47,13 +47,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
-set(SRCS main.cpp MainFrame.h MainFrame.cpp FeedItem.h FeedItem.cpp FeedList.h FeedList.cpp Utils.h Utils.cpp ArticleWebView.h ArticleWebView.cpp SourceTree.h SourceTree.cpp Article.h Article.cpp RssSourceCtrl.h RssSourceCtrl.cpp RssParser.h RssParser.cpp SourceInstallDialog.h SourceInstallDialog.cpp)
+set(SRCS main.cpp MainFrame.h MainFrame.cpp RssReaderCtrl.h RssReaderCtrl.cpp ArticleDB.h ArticleDB.cpp FeedItem.h FeedItem.cpp FeedList.h FeedList.cpp Utils.h Utils.cpp ArticleWebView.h ArticleWebView.cpp SourceTree.h SourceTree.cpp Article.h Article.cpp RssSourceCtrl.h RssSourceCtrl.cpp RssParser.h RssParser.cpp SourceInstallDialog.h SourceInstallDialog.cpp)
 
 if (APPLE)
 	add_executable(rssreader MACOSX_BUNDLE ${SRCS})
 	set_target_properties(rssreader PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist)
 else()
-	add_executable(rssreader WIN32 ${SRCS} main.exe.manifest)
+	add_executable(rssreader WIN32 ${SRCS} rssreader.exe.manifest)
 endif()
 
-target_link_libraries(rssreader PRIVATE wx::core wx::base wx::net wx::webview cpr::cpr pugixml::pugixml nlohmann_json::nlohmann_json)
+target_link_libraries(rssreader PRIVATE wx::core wx::base wx::net wx::webview wx::aui cpr::cpr pugixml::pugixml nlohmann_json::nlohmann_json)

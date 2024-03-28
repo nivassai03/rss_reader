@@ -5,12 +5,13 @@ class RssParser
 {
 public:
 	RssParser();
-	RssParser(std::string &&source, const std::string &imgDir);
-	std::vector<Article> FetchArticles(const std::string &);
-	void FetchAllArticlesFromSources(const std::unordered_map<std::string, std::vector<RssSource>> &);
-	void FetchArticlesFromSource(const RssSource &);
-	void FetchArticleImage(Article &);
-	void SetSourceAndImgDIr(const std::string &source, const std::string &imgDir);
+	RssParser(std::string &&, const std::string &);
+	std::vector<Article> FetchArticlesData(const std::string &);
+	std::unordered_map<std::string, std::unordered_map<std::string, std::vector<Article>>> FetchArticles(const std::unordered_map<std::string, std::vector<RssSource>> &);
+	std::unordered_map<std::string, std::unordered_map<std::string, std::vector<Article>>> FetchArticles(const std::vector<RssSource> &sources);
+	void DownloadAllArticleImages(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<Article>>> &);
+	void FetchArticleImage(const Article &);
+	void SetSourceAndImgDIr(const std::string &, const std::string &);
 
 private:
 	std::string m_source;

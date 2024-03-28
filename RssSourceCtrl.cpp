@@ -114,14 +114,9 @@ std::string RssSourceCtrl::getDefaultSourceFilePath()
     return sourceFilePath.ToStdString();
 }
 
-void RssSourceCtrl::installSources(const std::vector<std::pair<std::string, std::string>> &sources)
+std::vector<RssSource> RssSourceCtrl::installSources(const std::vector<std::pair<std::string, std::string>> &sources)
 {
-    // wxMessageOutputDebug dbg;
-    // dbg.Printf("Installing Following sources...\n");
-    // for (const auto &source : sources)
-    // {
-    //     dbg.Printf("Category:%s , Source:%s\n", source.first, source.second);
-    // }
+    std::vector<RssSource> installedSources;
     std::ifstream sourceFile(m_sourceFilePath);
     nlohmann::json j;
     sourceFile >> j;
@@ -135,23 +130,19 @@ void RssSourceCtrl::installSources(const std::vector<std::pair<std::string, std:
             if ((*it)["source"] == source_pair.first)
             {
                 installedList.push_back(*it);
+                installedSources.emplace_back(source_pair.second, source_pair.first, (*it)["url"]);
                 availableList.erase(it);
                 break;
             }
         }
     }
     saveSourceFile(j);
+    return installedSources;
 }
 
 void RssSourceCtrl::uninstallSources(const std::vector<std::pair<std::string, std::string>> &sources)
 {
 
-    // wxMessageOutputDebug dbg;
-    // dbg.Printf("Uninstalling Following sources...\n");
-    // for (const auto &source : sources)
-    // {
-    //     dbg.Printf("Category:%s , Source:%s\n", source.first, source.second);
-    // }
     std::ifstream sourceFile(m_sourceFilePath);
     nlohmann::json j;
     sourceFile >> j;
@@ -165,7 +156,6 @@ void RssSourceCtrl::uninstallSources(const std::vector<std::pair<std::string, st
         {
             if ((*it)["source"] == source_pair.first)
             {
-                // dbg.Printf("Uninstalling source:%s....\n", source_pair.first);
                 avialbleList.push_back(*it);
                 installedList.erase(it);
                 break;

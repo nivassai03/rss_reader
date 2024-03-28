@@ -8,9 +8,9 @@
 #include <wx/artprov.h>
 #include "RssParser.h"
 
-SourceInstallDialog::SourceInstallDialog(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &pos, const wxSize &size)
+SourceInstallDialog::SourceInstallDialog(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &pos, const wxSize &size, ArticleDB &articles)
     : wxDialog(parent, id, title, pos, size),
-      m_sourceCtrl(RssSourceCtrl())
+      m_sourceCtrl(RssSourceCtrl()), m_articles(articles)
 {
     // Main Panel
     m_panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
@@ -85,9 +85,7 @@ SourceInstallDialog::SourceInstallDialog(wxWindow *parent, wxWindowID id, const 
     btnInstall->Bind(wxEVT_BUTTON, &SourceInstallDialog::OnInstall, this);
     btnUninstall->Bind(wxEVT_BUTTON, &SourceInstallDialog::OnUninstall, this);
 }
-void SourceInstallDialog::setupCloseButton()
-{
-}
+
 void SourceInstallDialog::makeInstalledList()
 {
 
@@ -197,11 +195,11 @@ void SourceInstallDialog::OnInstall(wxCommandEvent &evt)
             sources.push_back({source.ToStdString(), category.ToStdString()});
         }
     }
-    m_sourceCtrl.installSources(sources);
+    auto installedSources = m_sourceCtrl.installSources(sources);
     wxWindowDisabler disableAll;
     wxBusyInfo info{
         wxBusyInfoFlags()
-            .Parent(this)
+            .Parent(nullptr)
             .Icon(wxArtProvider::GetBitmapBundle(wxART_INFORMATION, wxART_OTHER, wxSize(128, 128)))
             .Title("<b>Please wait!</b>")
             .Text("Please wait downloading articles from new sources...")
@@ -209,8 +207,7 @@ void SourceInstallDialog::OnInstall(wxCommandEvent &evt)
             .Background(*wxBLACK)
             .Transparency(4 * wxALPHA_OPAQUE / 5)};
     wxYield();
-    RssParser parser;
-    parser.FetchAllArticlesFromSources(m_sourceCtrl.fetchInstalledSources());
+    m_articles.UpdateWithNewArticles(installedSources);
     m_availableList->DeleteAllItems();
     m_installedList->DeleteAllItems();
     makeAvailableList();

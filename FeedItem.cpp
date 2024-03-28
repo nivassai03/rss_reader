@@ -1,4 +1,5 @@
 #include "FeedItem.h"
+#include "Utils.h"
 #include <wx/stattext.h>
 #include <wx/wrapsizer.h>
 #include <wx/panel.h>
@@ -51,8 +52,19 @@ FeedItem::FeedItem(wxWindow *_parent, const Article &article) : wxPanel(_parent,
 	m_contentPanel = new ContentPanel(this, static_cast<int>(ContentID::CONTENT_PANEL), wxString::FromUTF8(article.GetTitle()), wxString::FromUTF8(article.GetDescription()));
 	wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);
 
-	thumbnail.LoadFile(article.GetImageNameAndPath().second, wxBITMAP_TYPE_ANY);
-	wxStaticBitmap *bitmap = new wxStaticBitmap(this, static_cast<int>(FeedItemID::BITMAP), thumbnail, wxDefaultPosition, wxSize(150, 100));
+	const auto &[imgName, imgPath] = article.GetImageNameAndPath();
+	wxBitmap defaultThumbnail = wxBitmap(getDefaultImagePath(), wxBITMAP_TYPE_JPEG);
+	wxStaticBitmap *bitmap;
+	wxImage img;
+	if (img.CanRead(imgPath) && img.LoadFile(imgPath, wxBITMAP_TYPE_ANY) && img.IsOk())
+	{
+		bitmap = new wxStaticBitmap(this, static_cast<int>(FeedItemID::BITMAP), img, wxDefaultPosition, wxSize(150, 100));
+	}
+	else
+	{
+
+		bitmap = new wxStaticBitmap(this, static_cast<int>(FeedItemID::BITMAP), defaultThumbnail, wxDefaultPosition, wxSize(150, 100));
+	}
 	sizer->Add(bitmap, 0);
 	sizer->AddSpacer(10);
 	sizer->Add(m_contentPanel, 1, wxEXPAND);

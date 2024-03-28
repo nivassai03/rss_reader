@@ -1,5 +1,6 @@
 #pragma once
 #include <wx/dialog.h>
+#include "ArticleDB.h"
 #include <wx/notebook.h>
 #include <wx/treelist.h>
 #include "RssSourceCtrl.h"
@@ -9,7 +10,7 @@
 class SourceInstallDialog : public wxDialog
 {
 public:
-    SourceInstallDialog(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &pos, const wxSize &size);
+    SourceInstallDialog(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &pos, const wxSize &size, ArticleDB &aritcles);
 
 private:
     RssSourceCtrl m_sourceCtrl;
@@ -19,10 +20,10 @@ private:
     wxPanel *availablePanel;
     wxTreeListCtrl *m_availableList;
     wxTreeListCtrl *m_installedList;
+    ArticleDB &m_articles;
     void makeInstalledList();
     void OnClose(wxCommandEvent &);
     void makeAvailableList();
-    void setupCloseButton();
     void selectAllChildSources(wxTreeListEvent &);
     void OnSelectAll(wxCommandEvent &);
     void OnUnSelectAll(wxCommandEvent &);

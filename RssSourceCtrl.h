@@ -7,6 +7,7 @@
 class RssSource
 {
 public:
+    RssSource() = default;
     RssSource(std::string category, std::string name, std::string feedurl);
     std::string GenerateImageDir();
     std::string getCategory() const;
@@ -28,7 +29,7 @@ public:
     RssSourceCtrl(std::string fileName, std::string filePath);
     std::unordered_map<std::string, std::vector<RssSource>> fetchInstalledSources();
     std::unordered_map<std::string, std::vector<RssSource>> fetchAvailableSources();
-    void installSources(const std::vector<std::pair<std::string, std::string>> &sources);
+    std::vector<RssSource> installSources(const std::vector<std::pair<std::string, std::string>> &sources);
     void uninstallSources(const std::vector<std::pair<std::string, std::string>> &sources);
 
 private:
